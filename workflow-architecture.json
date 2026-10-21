@@ -1,0 +1,1300 @@
+{
+  "project": "Referral Eligibility & Payout Automation",
+  "format": "generalized n8n architectural case-study (not importable)",
+  "version": "1.0",
+  "scope": "Finance and eligibility subsystem built within a larger referral platform",
+  "technical_stack": [
+    "n8n",
+    "JavaScript",
+    "Google Sheets",
+    "Slack",
+    "scheduled triggers",
+    "event-based routing",
+    "data transformation"
+  ],
+  "architecture_summary": {
+    "source_node_count": 51,
+    "documented_connection_count": 44,
+    "workflow_paths": [
+      "scheduled eligibility assessment",
+      "messaging-triggered eligibility review",
+      "milestone review and tracking updates",
+      "finance confirmation and status updates",
+      "notification and error paths"
+    ],
+    "milestone_handling": "Multiple elapsed-time milestones are evaluated; exact company thresholds and payment rules are withheld."
+  },
+  "illustrative_data_contracts": {
+    "referral_record": {
+      "referral_key": "SAMPLE-001",
+      "milestone_stage": "stage_one",
+      "milestone_date": "2026-01-01",
+      "subject_status": "active",
+      "referrer_status": "active",
+      "eligibility_status": "pending_review",
+      "payment_status": "unpaid"
+    },
+    "eligibility_outcome": {
+      "referral_key": "SAMPLE-001",
+      "status": "eligible|ineligible|review_required",
+      "reason_category": "timing|lifecycle_status|already_processed|other",
+      "next_action": "update_tracking|notify_reviewer|no_action"
+    },
+    "notification": {
+      "event_type": "eligibility_review|finance_confirmation|exception",
+      "reference": "SAMPLE-001",
+      "message": "Example notification text"
+    }
+  },
+  "logic_notes": [
+    "Illustrative contract values are synthetic and do not reproduce company field names or formulas.",
+    "Business rules and exact milestone thresholds are intentionally abstracted.",
+    "Authentication, proprietary scripts, prompts, spreadsheet references, user IDs and webhook configuration are excluded.",
+    "Original node and connection structure is represented for explanation; all node parameters necessary to execute it are removed."
+  ],
+  "nodes": [
+    {
+      "id": "node_01",
+      "label": "Scheduled eligibility review",
+      "component_type": "n8n/scheduleTrigger",
+      "purpose": "Initiates periodic review of referral milestone eligibility.",
+      "technical_outline": {
+        "trigger_type": "recurring schedule",
+        "schedule": "omitted"
+      },
+      "canvas_position": [
+        -2672,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_02",
+      "label": "Load referral milestone records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Reads generalized referral placement and milestone tracking records.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "milestone": "first|second",
+          "milestone_date": "YYYY-MM-DD",
+          "payment_status": "pending|paid"
+        }
+      },
+      "canvas_position": [
+        -2448,
+        -112
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_03",
+      "label": "Load active/inactive status source",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Retrieves status data needed to block ineligible referral milestones.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "subject_status": "active|inactive",
+          "referrer_status": "active|inactive"
+        }
+      },
+      "canvas_position": [
+        -2448,
+        80
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_04",
+      "label": "Combine tracking and eligibility inputs",
+      "component_type": "n8n/merge",
+      "purpose": "Joins normalized record and status streams for eligibility evaluation.",
+      "technical_outline": {
+        "operation": "merge data streams",
+        "join_logic": "illustrative, not original implementation"
+      },
+      "canvas_position": [
+        -2224,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_05",
+      "label": "Check matching record",
+      "component_type": "n8n/if",
+      "purpose": "Routes records depending on whether a tracking entry exists.",
+      "technical_outline": {
+        "operation": "conditional route",
+        "outputs": [
+          "record exists",
+          "record missing"
+        ]
+      },
+      "canvas_position": [
+        -1776,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_06",
+      "label": "Update milestone tracking records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Writes generalized eligibility or paid-status outcomes to a tracking source.",
+      "technical_outline": {
+        "operation": "update records",
+        "lookup_key": "synthetic record identifier",
+        "fields": [
+          "milestone_status",
+          "review_status",
+          "confirmation_status"
+        ]
+      },
+      "canvas_position": [
+        -1552,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_07",
+      "label": "Evaluate referral eligibility",
+      "component_type": "n8n/code",
+      "purpose": "Evaluates milestone windows and active/inactive status before a record can proceed.",
+      "technical_outline": {
+        "operation": "rule evaluation",
+        "logic_outline": [
+          "normalize source fields and date values",
+          "evaluate milestone timing",
+          "block inactive subjects or referrers",
+          "identify eligible, excluded, or already processed records",
+          "emit updates and review items"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -2000,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_08",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1104,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_09",
+      "label": "Format eligibility review notification",
+      "component_type": "n8n/code",
+      "purpose": "Prepares milestone-specific review and exception summaries; handles overdue and exclusion statuses.",
+      "technical_outline": {
+        "operation": "data transformation",
+        "logic_outline": [
+          "normalize event data",
+          "group milestone records",
+          "identify overdue review candidates",
+          "format status and review summaries"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -1328,
+        -16
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_10",
+      "label": "Finance and eligibility command intake",
+      "component_type": "n8n/slackTrigger",
+      "purpose": "Starts a review or confirmation branch from an authorized messaging event.",
+      "technical_outline": {
+        "trigger_type": "messaging event",
+        "message_filters": "omitted"
+      },
+      "canvas_position": [
+        -3200,
+        816
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_11",
+      "label": "Load referral milestone records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Reads generalized referral placement and milestone tracking records.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "milestone": "first|second",
+          "milestone_date": "YYYY-MM-DD",
+          "payment_status": "pending|paid"
+        }
+      },
+      "canvas_position": [
+        -2656,
+        320
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_12",
+      "label": "Load active/inactive status source",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Retrieves status data needed to block ineligible referral milestones.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "subject_status": "active|inactive",
+          "referrer_status": "active|inactive"
+        }
+      },
+      "canvas_position": [
+        -2656,
+        512
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_13",
+      "label": "Combine tracking and eligibility inputs",
+      "component_type": "n8n/merge",
+      "purpose": "Joins normalized record and status streams for eligibility evaluation.",
+      "technical_outline": {
+        "operation": "merge data streams",
+        "join_logic": "illustrative, not original implementation"
+      },
+      "canvas_position": [
+        -2432,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_14",
+      "label": "Route workflow event",
+      "component_type": "n8n/switch",
+      "purpose": "Branches incoming operational events to appropriate eligibility or finance actions.",
+      "technical_outline": {
+        "operation": "rule-based event router",
+        "route_categories": [
+          "eligibility review A",
+          "eligibility review B",
+          "finance confirmation A",
+          "finance confirmation B",
+          "error handling"
+        ]
+      },
+      "canvas_position": [
+        -2992,
+        768
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_15",
+      "label": "Load referral milestone records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Reads generalized referral placement and milestone tracking records.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "milestone": "first|second",
+          "milestone_date": "YYYY-MM-DD",
+          "payment_status": "pending|paid"
+        }
+      },
+      "canvas_position": [
+        -2656,
+        704
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_16",
+      "label": "Load active/inactive status source",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Retrieves status data needed to block ineligible referral milestones.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "subject_status": "active|inactive",
+          "referrer_status": "active|inactive"
+        }
+      },
+      "canvas_position": [
+        -2656,
+        896
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_17",
+      "label": "Combine tracking and eligibility inputs",
+      "component_type": "n8n/merge",
+      "purpose": "Joins normalized record and status streams for eligibility evaluation.",
+      "technical_outline": {
+        "operation": "merge data streams",
+        "join_logic": "illustrative, not original implementation"
+      },
+      "canvas_position": [
+        -2432,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_18",
+      "label": "Evaluate referral eligibility",
+      "component_type": "n8n/code",
+      "purpose": "Evaluates milestone windows and active/inactive status before a record can proceed.",
+      "technical_outline": {
+        "operation": "rule evaluation",
+        "logic_outline": [
+          "normalize source fields and date values",
+          "evaluate milestone timing",
+          "block inactive subjects or referrers",
+          "identify eligible, excluded, or already processed records",
+          "emit updates and review items"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -2208,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_19",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1312,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_20",
+      "label": "Format eligibility review notification",
+      "component_type": "n8n/code",
+      "purpose": "Prepares milestone-specific review and exception summaries; handles overdue and exclusion statuses.",
+      "technical_outline": {
+        "operation": "data transformation",
+        "logic_outline": [
+          "normalize event data",
+          "group milestone records",
+          "identify overdue review candidates",
+          "format status and review summaries"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -1536,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_21",
+      "label": "Update milestone tracking records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Writes generalized eligibility or paid-status outcomes to a tracking source.",
+      "technical_outline": {
+        "operation": "update records",
+        "lookup_key": "synthetic record identifier",
+        "fields": [
+          "milestone_status",
+          "review_status",
+          "confirmation_status"
+        ]
+      },
+      "canvas_position": [
+        -1760,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_22",
+      "label": "Check matching record",
+      "component_type": "n8n/if",
+      "purpose": "Routes records depending on whether a tracking entry exists.",
+      "technical_outline": {
+        "operation": "conditional route",
+        "outputs": [
+          "record exists",
+          "record missing"
+        ]
+      },
+      "canvas_position": [
+        -1984,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_23",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -2800,
+        -192
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_24",
+      "label": "Evaluate referral eligibility",
+      "component_type": "n8n/code",
+      "purpose": "Evaluates milestone windows and active/inactive status before a record can proceed.",
+      "technical_outline": {
+        "operation": "rule evaluation",
+        "logic_outline": [
+          "normalize source fields and date values",
+          "evaluate milestone timing",
+          "block inactive subjects or referrers",
+          "identify eligible, excluded, or already processed records",
+          "emit updates and review items"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -2208,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_25",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1312,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_26",
+      "label": "Format eligibility review notification",
+      "component_type": "n8n/code",
+      "purpose": "Prepares milestone-specific review and exception summaries; handles overdue and exclusion statuses.",
+      "technical_outline": {
+        "operation": "data transformation",
+        "logic_outline": [
+          "normalize event data",
+          "group milestone records",
+          "identify overdue review candidates",
+          "format status and review summaries"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -1536,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_27",
+      "label": "Update milestone tracking records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Writes generalized eligibility or paid-status outcomes to a tracking source.",
+      "technical_outline": {
+        "operation": "update records",
+        "lookup_key": "synthetic record identifier",
+        "fields": [
+          "milestone_status",
+          "review_status",
+          "confirmation_status"
+        ]
+      },
+      "canvas_position": [
+        -1760,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_28",
+      "label": "Check matching record",
+      "component_type": "n8n/if",
+      "purpose": "Routes records depending on whether a tracking entry exists.",
+      "technical_outline": {
+        "operation": "conditional route",
+        "outputs": [
+          "record exists",
+          "record missing"
+        ]
+      },
+      "canvas_position": [
+        -1984,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_29",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1088,
+        800
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_30",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1088,
+        416
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_31",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -1360,
+        320
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_32",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -1344,
+        688
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_33",
+      "label": "Load referral milestone records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Reads generalized referral placement and milestone tracking records.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "milestone": "first|second",
+          "milestone_date": "YYYY-MM-DD",
+          "payment_status": "pending|paid"
+        }
+      },
+      "canvas_position": [
+        -2656,
+        1200
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_34",
+      "label": "Combine tracking and eligibility inputs",
+      "component_type": "n8n/merge",
+      "purpose": "Joins normalized record and status streams for eligibility evaluation.",
+      "technical_outline": {
+        "operation": "merge data streams",
+        "join_logic": "illustrative, not original implementation"
+      },
+      "canvas_position": [
+        -2432,
+        1216
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_35",
+      "label": "Validate finance confirmation",
+      "component_type": "n8n/code",
+      "purpose": "Checks lifecycle state and milestone rules before confirming a payout status.",
+      "technical_outline": {
+        "operation": "rule evaluation",
+        "logic_outline": [
+          "normalize tracking rows",
+          "reject ineligible or inactive records",
+          "check outstanding milestone and confirmation state",
+          "emit allowed update actions"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -2208,
+        1216
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_36",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1520,
+        1216
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_37",
+      "label": "Update milestone tracking records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Writes generalized eligibility or paid-status outcomes to a tracking source.",
+      "technical_outline": {
+        "operation": "update records",
+        "lookup_key": "synthetic record identifier",
+        "fields": [
+          "milestone_status",
+          "review_status",
+          "confirmation_status"
+        ]
+      },
+      "canvas_position": [
+        -1760,
+        1216
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_38",
+      "label": "Check matching record",
+      "component_type": "n8n/if",
+      "purpose": "Routes records depending on whether a tracking entry exists.",
+      "technical_outline": {
+        "operation": "conditional route",
+        "outputs": [
+          "record exists",
+          "record missing"
+        ]
+      },
+      "canvas_position": [
+        -1984,
+        1216
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_39",
+      "label": "Load referral milestone records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Reads generalized referral placement and milestone tracking records.",
+      "technical_outline": {
+        "operation": "read records",
+        "output_schema": {
+          "record_key": "synthetic-key",
+          "milestone": "first|second",
+          "milestone_date": "YYYY-MM-DD",
+          "payment_status": "pending|paid"
+        }
+      },
+      "canvas_position": [
+        -2656,
+        1440
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_40",
+      "label": "Combine tracking and eligibility inputs",
+      "component_type": "n8n/merge",
+      "purpose": "Joins normalized record and status streams for eligibility evaluation.",
+      "technical_outline": {
+        "operation": "merge data streams",
+        "join_logic": "illustrative, not original implementation"
+      },
+      "canvas_position": [
+        -2416,
+        1456
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_41",
+      "label": "Validate finance confirmation",
+      "component_type": "n8n/code",
+      "purpose": "Checks lifecycle state and milestone rules before confirming a payout status.",
+      "technical_outline": {
+        "operation": "rule evaluation",
+        "logic_outline": [
+          "normalize tracking rows",
+          "reject ineligible or inactive records",
+          "check outstanding milestone and confirmation state",
+          "emit allowed update actions"
+        ],
+        "code": "omitted"
+      },
+      "canvas_position": [
+        -2208,
+        1456
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_42",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -1504,
+        1456
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_43",
+      "label": "Update milestone tracking records",
+      "component_type": "n8n/googleSheets",
+      "purpose": "Writes generalized eligibility or paid-status outcomes to a tracking source.",
+      "technical_outline": {
+        "operation": "update records",
+        "lookup_key": "synthetic record identifier",
+        "fields": [
+          "milestone_status",
+          "review_status",
+          "confirmation_status"
+        ]
+      },
+      "canvas_position": [
+        -1744,
+        1456
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_44",
+      "label": "Check matching record",
+      "component_type": "n8n/if",
+      "purpose": "Routes records depending on whether a tracking entry exists.",
+      "technical_outline": {
+        "operation": "conditional route",
+        "outputs": [
+          "record exists",
+          "record missing"
+        ]
+      },
+      "canvas_position": [
+        -1984,
+        1456
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_45",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -2800,
+        240
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_46",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -1088,
+        704
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_47",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -1120,
+        320
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_48",
+      "label": "Workflow annotation",
+      "component_type": "n8n/stickyNote",
+      "purpose": "Documentation note in the original workflow canvas; content excluded.",
+      "technical_outline": {
+        "content": "omitted"
+      },
+      "canvas_position": [
+        -2800,
+        1056
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_49",
+      "label": "Send workflow notification",
+      "component_type": "n8n/slack",
+      "purpose": "Sends a sanitized status, eligibility-review, or finance-confirmation notification.",
+      "technical_outline": {
+        "operation": "send message",
+        "recipient": "omitted",
+        "payload_schema": {
+          "event_type": "eligibility_review|finance_confirmation|error",
+          "record_key": "synthetic-key",
+          "summary": "generalized text"
+        }
+      },
+      "canvas_position": [
+        -2640,
+        1712
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_50",
+      "label": "Illustrative integration request",
+      "component_type": "n8n/httpRequest",
+      "purpose": "Represents an external integration touchpoint without retaining its original destination.",
+      "technical_outline": {
+        "method": "omitted",
+        "destination": "omitted",
+        "body": "omitted"
+      },
+      "canvas_position": [
+        -2864,
+        2032
+      ],
+      "non_executable": true
+    },
+    {
+      "id": "node_51",
+      "label": "Manual demonstration entry",
+      "component_type": "n8n/manualTrigger",
+      "purpose": "Allows a test or administrative invocation.",
+      "technical_outline": {
+        "trigger_type": "manual"
+      },
+      "canvas_position": [
+        -3056,
+        2032
+      ],
+      "non_executable": true
+    }
+  ],
+  "connections": [
+    {
+      "from": "node_01",
+      "to": "node_02",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_01",
+      "to": "node_03",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_02",
+      "to": "node_04",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_03",
+      "to": "node_04",
+      "output_index": 0,
+      "input_index": 1,
+      "channel": "main"
+    },
+    {
+      "from": "node_04",
+      "to": "node_07",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_05",
+      "to": "node_06",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_07",
+      "to": "node_05",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_06",
+      "to": "node_09",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_09",
+      "to": "node_08",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_10",
+      "to": "node_14",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_11",
+      "to": "node_13",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_12",
+      "to": "node_13",
+      "output_index": 0,
+      "input_index": 1,
+      "channel": "main"
+    },
+    {
+      "from": "node_13",
+      "to": "node_18",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_11",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_12",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_15",
+      "output_index": 1,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_16",
+      "output_index": 1,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_33",
+      "output_index": 2,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_39",
+      "output_index": 3,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_14",
+      "to": "node_49",
+      "output_index": 4,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_15",
+      "to": "node_17",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_16",
+      "to": "node_17",
+      "output_index": 0,
+      "input_index": 1,
+      "channel": "main"
+    },
+    {
+      "from": "node_17",
+      "to": "node_24",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_18",
+      "to": "node_22",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_20",
+      "to": "node_19",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_21",
+      "to": "node_20",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_22",
+      "to": "node_21",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_24",
+      "to": "node_28",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_26",
+      "to": "node_25",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_27",
+      "to": "node_26",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_28",
+      "to": "node_27",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_25",
+      "to": "node_29",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_19",
+      "to": "node_30",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_33",
+      "to": "node_34",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_34",
+      "to": "node_35",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_35",
+      "to": "node_38",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_37",
+      "to": "node_36",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_38",
+      "to": "node_37",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_39",
+      "to": "node_40",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_40",
+      "to": "node_41",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_41",
+      "to": "node_44",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_43",
+      "to": "node_42",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_44",
+      "to": "node_43",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    },
+    {
+      "from": "node_51",
+      "to": "node_50",
+      "output_index": 0,
+      "input_index": 0,
+      "channel": "main"
+    }
+  ],
+  "executable": false
+}
