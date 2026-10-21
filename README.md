@@ -17,7 +17,7 @@ The automation replaces repeated manual checks with structured, scheduled and ev
 
 ## Workflow Architecture
 
-![Referral eligibility and payout workflow](assets/workflow-overview.png)
+![Referral eligibility and payout workflow](assets/workflow-architecture.png)
 
 *Overview of the workflow structure and its eligibility, finance, and notification branches.*
 
@@ -61,5 +61,5 @@ referral-eligibility-automation/
 ├── README.md
 ├── workflow-architecture.json
 └── assets/
-    └── workflow-overview.png   # Add your workflow screenshot
+    └── workflow-overview.png 
 ```
